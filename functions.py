@@ -46,6 +46,12 @@ def generate_prompt(input_info):
 
 def generate_response(prompt):
     chat = ChatOpenAI(temperature=0.0)
-    response = chat(prompt)
-    return response
+    prompt_template = ChatPromptTemplate.from_template(prompt)
+    customer_style = """American English \ in a calm and professional tone"""
+    customer_messages = prompt_template.format_messages(
+                    style=customer_style,
+                    text=prompt)
+    response = chat(customer_messages)
+    out = response.content
+    return out
 

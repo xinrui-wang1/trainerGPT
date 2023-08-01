@@ -1,6 +1,11 @@
 from flask import Flask, request, render_template
 from flask_cors import CORS
 from functions import generate_prompt, generate_response
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+# openai_api_key = os.getenv('OPENAI_API_KEY')
 
 app = Flask(__name__)
 CORS(app)
@@ -19,10 +24,6 @@ class UserProfile:
         self.equipment = user_data['equipment']
         self.duration_hr = user_data['duration_hr']
         self.duration_min = user_data['duration_min']
-        
-    def perform_function(self):
-        # Placeholder for your function
-        pass
 
 app = Flask(__name__)
 
