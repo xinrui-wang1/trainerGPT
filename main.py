@@ -1,13 +1,13 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, session, redirect, url_for
 from flask_cors import CORS
-from functions import generate_prompt, generate_response
+from functions import generate_prompt, generate_response, parse_response
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
-# openai_api_key = os.getenv('OPENAI_API_KEY')
-
 app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY')
 CORS(app)
 
 class UserProfile:
@@ -25,12 +25,11 @@ class UserProfile:
         self.duration_hr = user_data['duration_hr']
         self.duration_min = user_data['duration_min']
 
-app = Flask(__name__)
-
 @app.route('/', methods=['GET', 'POST'])
 def form():
-    form_data = {}
-    prompt = ""
+    form_data = session.get('form_data', {})
+    response = ""
+    parsed = ""
     if request.method == 'POST':
         # get the form data
         form_data = {
@@ -47,12 +46,28 @@ def form():
             'duration_hr': request.form.get('duration_hr'),
             'duration_min': request.form.get('duration_min')
         }
+        session['form_data'] = form_data
 
         # generate the prompt
-        prompt = generate_prompt(form_data)
+        prompt = generate_prompt(form_data) 
         response = generate_response(prompt)
-        
-    return render_template('form.html', form_data=form_data, prompt=response)
+        parsed = parse_response(response)
+        session['response'] = response
+        session['parsed'] = parsed
+        return redirect(url_for('form'))
+
+    if 'response' in session:
+        response = session['response']
+        parsed = session['parsed']
+        del session['response']  # clear it from the session
+        del session['parsed']
+
+    return render_template('form.html', form_data=form_data, prompt=parsed if response else "", routine=parsed)
+
+@app.route('/clear', methods=['GET'])
+def clear_form():
+    session.pop('form_data', None)
+    return redirect(url_for('form'))
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <link rel="stylesheet" type="text/css"href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+      
 <body>
 
 <form action="/" method="post">
@@ -58,8 +62,27 @@
 </form>
 
 {% if prompt %}
-<p>TrainergitGPT:</p>
-<p>{{ prompt }}</p>
+<p>Trainer GPT:</p>
+{% endif %}
+{% if routine %}
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Muscle Groups</th>
+        <th>Exercises</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in range(routine['Day']|length) %}
+        <tr>
+          <td>{{ routine['Day'][i] }}</td>
+          <td>{{ routine['Muscle Group'][i] }}</td>
+          <td>{{ routine['Exercises'][i]|replace('\n', '<br>')|safe }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endif %}
 
 <script>

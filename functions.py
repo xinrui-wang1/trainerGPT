@@ -1,5 +1,6 @@
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
+from langchain.output_parsers import ResponseSchema, StructuredOutputParser
 
 def generate_prompt(input_info):
     exercises = []
@@ -19,11 +20,13 @@ def generate_prompt(input_info):
 
     # create the prompt template
     prompt_template = """
+    Take on the role of a professional fitness trainer.
     We are designing a workout for a {gender} individual who is {age} years old, weighs {weight} lbs, and has a height of {height}. 
     They are interested in working out {days_per_week} days per week with an intensity level of {intensity}. 
     Their primary goal is {goals}. They have classified their exercise experience level as {experience}. 
     They have access to the following equipment: {equipment}. 
     Each of their workouts can last approximately {duration}. 
+    Note that rest day do not count as a workout day.
     Given this information, generate a suitable workout plan.
     """
 
@@ -55,3 +58,53 @@ def generate_response(prompt):
     out = response.content
     return out
 
+def parse_response(response):
+    
+    day_schema = ResponseSchema(name="Day",
+                             description="The numbered day of the week\
+                             (e.g. Day 1, Day 2, ... Day 7)\
+                             Note that the days should be listed in order, starting from Day 1.\
+                             Also it should not be a key but rather values for the key 'Day'.\
+                                It should just list out the days (e.g. Day 1, Day 2, Day 3, ... Day 7) and nothing else")
+    muscle_group_schema = ResponseSchema(name="Muscle Group",
+                                        description="The muscle group that is being worked out\
+                                            (e.g. Chest and Triceps, Back and Biceps)")
+    exercises_schema = ResponseSchema(name="Exercises",
+                                        description="The name of the exercises with corresponding number of sets and reps.\
+                                            (e.g. Bench press: 3 sets of 8-10 reps)\
+                                                Each exercise should be listed as a bullet point")
+    response_schemas = [day_schema, muscle_group_schema, exercises_schema]
+    output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
+    format_instructions = output_parser.get_format_instructions()
+
+    template = """
+    For the following text, extract the following information:
+
+    Day: The numbered day of the workout (e.g. Day 1, Day 2, ... Day 7)
+    Note that the days should be listed in order, starting from Day 1. 
+    Also it should not be a key but rather values for the key "Day".
+
+    Muscle Group: The muscle group that is being worked out (e.g. Chest and Triceps, Back and Biceps)
+
+    Exercises: The name of the exercises with corresponding number of sets and reps. (e.g. Bench press: 3 sets of 8-10 reps)
+    Each exercise should be listed as a bullet point, with line breaks between each exercise.
+
+    Format the output as JSON with the following keys:
+    Day
+    Muscle Group
+    Exercise
+
+    text: {text}
+
+    {format_instructions}
+    """
+    prompt = ChatPromptTemplate.from_template(template=template)
+    messages = prompt.format_messages(text=response, 
+                                format_instructions=format_instructions)
+    
+    chat = ChatOpenAI(temperature=0.0)
+    response = chat(messages)
+    
+    output_dict = output_parser.parse(response.content)
+
+    return output_dict
