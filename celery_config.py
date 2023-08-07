@@ -1,7 +1,31 @@
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
-from langchain.output_parsers import ResponseSchema, StructuredOutputParser
+from celery import Celery
+from flask import Flask
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def load_tasks():
+    import functions
+
+redis_url = os.getenv('REDISCLOUD_URL')
+
+
+def make_celery(app):
+    celery = Celery(
+        app.import_name,
+        backend=app.config['CELERY_RESULT_BACKEND'],
+        broker=app.config['CELERY_BROKER_URL']
+    )
+    celery.conf.update(app.config)
+
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
 
 def generate_prompt(input_info):
     exercises = []
@@ -108,3 +132,10 @@ def parse_response(response):
     output_dict = output_parser.parse(response.content)
 
     return output_dict
+
+app = Flask(__name__)
+app.config.update(
+    CELERY_BROKER_URL=redis_url,  # Your Heroku Redis URL
+    CELERY_RESULT_BACKEND=redis_url  # Your Heroku Redis URL
+)
+celery = make_celery(app)

@@ -1,13 +1,15 @@
 from flask import Flask, request, render_template, session, redirect, url_for
 from flask_cors import CORS
-from functions import generate_prompt, generate_response, parse_response
 import os
 from dotenv import load_dotenv
+from celery_config import app, celery
+import redis
 
 load_dotenv()
 
-app = Flask(__name__)
+redis_url = os.getenv('REDISCLOUD_URL')
 app.secret_key = os.getenv('SECRET_KEY')
+
 CORS(app)
 
 class UserProfile:
@@ -49,9 +51,20 @@ def form():
         session['form_data'] = form_data
 
         # generate the prompt
-        prompt = generate_prompt(form_data) 
-        response = generate_response(prompt)
-        parsed = parse_response(response)
+        print("Generating prompt...")
+        prompt_task = generate_prompt.delay(form_data)  # start the task
+        prompt = prompt_task.get()  # get the result (this will wait for the task to complete)
+        
+        # generate the response
+        print("Generating response...")
+        response_task = generate_response.delay(prompt)  # start the task
+        response = response_task.get()  # get the result
+
+        # parse the response
+        print("Parsing response...")
+        parsed_task = parse_response.delay(response)  # start the task
+        parsed = parsed_task.get()  # get the result
+
         session['response'] = response
         session['parsed'] = parsed
         return redirect(url_for('form'))
