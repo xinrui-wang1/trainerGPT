@@ -1,1 +1,1 @@
-web: gunicorn app:trainer-gpt
+web: gunicorn app:app
