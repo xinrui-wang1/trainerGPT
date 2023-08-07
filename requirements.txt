@@ -9,6 +9,8 @@ dataclasses-json==0.5.14
 Flask @ file:///Users/cbousseau/work/recipes/ci_py311/flask_1677937489551/work
 Flask-Cors @ file:///tmp/build/80754af9/flask_cors_1614875208036/work
 frozenlist==1.4.0
+gunicorn==21.2.0
+heroku==0.1.4
 idna==3.4
 itsdangerous @ file:///tmp/build/80754af9/itsdangerous_1621432558163/work
 Jinja2 @ file:///Users/cbousseau/work/recipes/ci_py311/jinja2_1677916113134/work
@@ -24,6 +26,7 @@ openai==0.27.8
 openapi-schema-pydantic==1.2.4
 packaging==23.1
 pydantic==1.10.12
+python-dateutil==1.5
 python-dotenv==1.0.0
 PyYAML==6.0.1
 requests==2.31.0
