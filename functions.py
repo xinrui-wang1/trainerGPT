@@ -26,7 +26,11 @@ def generate_prompt(input_info):
     Their primary goal is {goals}. They have classified their exercise experience level as {experience}. 
     They have access to the following equipment: {equipment}. 
     Each of their workouts can last approximately {duration}. 
-    Note that rest day do not count as a workout day.
+
+    Check that the number of workout days per week is consistent with the number of days that the user wants to workout, note that rest days do not count as a workout day.
+    For example, if the user wants to workout 5 days per week, then there should be 5 days of workouts and 2 days of rest.
+    The workout should be tailored to the user's goals, intensity level, and experience level. 
+    For example, if the user's goal is to build muscle, then the workout should include exercises that are designed to build muscle with the according sets and reps.
     Given this information, generate a suitable workout plan.
     """
 
@@ -80,8 +84,9 @@ def parse_response(response):
     template = """
     For the following text, extract the following information:
 
-    Day: The numbered day of the workout (e.g. Day 1, Day 2, ... Day 7)
+    Day: The numbered day of the workout (e.g. Day 1, Day 2, ... Day 7) 
     Note that the days should be listed in order, starting from Day 1. 
+    Only extract days where you work out, not rest days.
     Also it should not be a key but rather values for the key "Day".
 
     Muscle Group: The muscle group that is being worked out (e.g. Chest and Triceps, Back and Biceps)
