@@ -86,6 +86,7 @@ def parse_response(response):
 
     Day: The numbered day of the workout (e.g. Day 1, Day 2, ... Day 7) 
     Note that the days should be listed in order, starting from Day 1. 
+    This should not include other information such as the muscle group or exercises.
     Only extract days where you work out, not rest days.
     Also it should not be a key but rather values for the key "Day".
 

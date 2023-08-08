@@ -1,106 +1,109 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <link rel="stylesheet" type="text/css"href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
-      
-<body>
-
-<form action="/" method="post">
-    Days per week:
-    <input type="text" name="days_per_week" value="{{ form_data['days_per_week'] or '' }}"><br>
-    Goal:
-        <select id="goal" name="goal" onchange="checkOther(this)">
-            <option value="muscle building" {% if form_data['goal'] == 'muscle building' %}selected{% endif %}>Muscle Building</option>
-            <option value="strength training" {% if form_data['goal'] == 'strength training' %}selected{% endif %}>Strength Training</option>
-            <option value="endurance training" {% if form_data['goal'] == 'endurance training' %}selected{% endif %}>Endurance Training</option>
-            <option value="weight loss" {% if form_data['goal'] == 'weight loss' %}selected{% endif %}>Weight Loss</option>
-            <option value="other" {% if form_data['goal'] == 'other' %}selected{% endif %}>Other</option>
-        </select><br>
-        <input type="text" id="other_goal" name="other_goal" style="display:none;" value="{{ form_data['other_goal'] or '' }}">
-    Intensity Level:
-        <select id="intensity" name="intensity">
-            <option value="low" {% if form_data['intensity'] == 'low' %}selected{% endif %}>Low</option>
-            <option value="moderate" {% if form_data['intensity'] == 'moderate' %}selected{% endif %}>Moderate</option>
-            <option value="high" {% if form_data['intensity'] == 'high' %}selected{% endif %}>High</option>
-            <option value="very high" {% if form_data['intensity'] == 'very high' %}selected{% endif %}>Very High</option>
-    </select><br>
-    Gender:
-        <select id="gender" name="gender">
-            <option value="Male" {% if form_data['gender'] == 'male' %}selected{% endif %}>Male</option>
-            <option value="Female" {% if form_data['gender'] == 'female' %}selected{% endif %}>Female</option>
-            <option value="Other" {% if form_data['gender'] == 'other' %}selected{% endif %}>Other</option>
-        </select><br>
-    Weight (lbs):
-        <input type="text" id="weight" name="weight" value="{{ form_data['weight'] or '' }}"><br>
-    Height:
-        <input type="text" name="height_ft" value="{{ form_data['height_ft'] or '' }}">ft
-        <input type="text" name="height_in" value="{{ form_data['height_in'] or '' }}">in<br>
-    Age:
-        <input type="text" name="age" value="{{ form_data['age'] or '' }}"><br>
-    Experience Level:
-        <select id="experience" name="experience">
-            <option value="beginner" {% if form_data['experience'] == 'beginner' %}selected{% endif %}>Beginner</option>
-            <option value="intermediate" {% if form_data['experience'] == 'intermediate' %}selected{% endif %}>Intermediate</option>
-            <option value="advanced" {% if form_data['experience'] == 'advanced' %}selected{% endif %}>Advanced</option>
-        </select><br>
-    Equipment Availability: 
-        <select id="equipment" name="equipment" onchange="checkOther(this)">
-            <option value="professional gym" {% if form_data['equipment'] == 'professional gym' %}selected{% endif %}>Professional Gym</option>
-            <option value="home gym" {% if form_data['equipment'] == 'home gym' %}selected{% endif %}>Home Gym</option>
-            <option value="outdoor" {% if form_data['equipment'] == 'outdoor' %}selected{% endif %}>Outdoor</option>
-            <option value="body workout" {% if form_data['equipment'] == 'body workout' %}selected{% endif %}>Body Workout</option>
-            <option value="other" {% if form_data['equipment'] == 'other' %}selected{% endif %}>Other</option>
-        </select><br>
-        <input type="text" id="other_equipment" name="other_equipment" style="display:none;" value="{{ form_data['other_equipment'] or '' }}">
-
-    Workout Duration:
-        <input type="text" name="duration_hr" value="{{ form_data['duration_hr'] or '' }}">hr
-        <input type="text" name="duration_min" value="{{ form_data['duration_min'] or '' }}">min<br>
-
-    <input type="submit" value="Submit">
-</form>
-
-{% if prompt %}
-<p>Trainer GPT:</p>
-{% endif %}
-{% if routine %}
-  <table>
-    <thead>
-      <tr>
-        <th>Day</th>
-        <th>Muscle Groups</th>
-        <th>Exercises</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for i in range(routine['Day']|length) %}
-        <tr>
-          <td>{{ routine['Day'][i] }}</td>
-          <td>{{ routine['Muscle Group'][i] }}</td>
-          <td>{{ routine['Exercises'][i]|replace('\n', '<br>')|safe }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-{% endif %}
-
-<script>
-    function checkOther(selectBox) {
-      var otherInput = document.getElementById("other_" + selectBox.id);
-      if (selectBox.value == "other") {
-        otherInput.style.display = "block";
-      } else {
-        otherInput.style.display = "none";
-      }
-    }
-  
-    window.onload = function() {
-      checkOther(document.getElementById("goal"));
-      checkOther(document.getElementById("equipment"));
-    //   ... call checkOther for any other select boxes that have an 'Other' option ...
-    }
-  </script>
-
-</body>
+  <head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <img src="{{ url_for('static', filename='header.png') }}" alt="TrainerGPT Header" id="header-image">
+      <div class="grid-container">
+        <div class="input-side">
+          <div class="header">
+            <h1>TrainerGPT</h1>
+            <p>Please fill out the form and we will generate the workout plan for you!</p>
+            <p class="note">Please note: Generating your workout plan may take a moment. Thanks for your patience!</p>
+          </div>
+          <form action="/" method="post">
+            <div class="form-item double">
+              <span class="input-label">Days per week:</span>
+              <input type="number" name="days_per_week" value="{{ form_data['days_per_week'] or '' }}" min="1" max="7"> Goal: <select id="goal" name="goal" onchange="checkOther(this)">
+                <option value="muscle building" {% if form_data['goal'] == 'muscle building' %}selected{% endif %}>Muscle Building</option>
+                <option value="strength training" {% if form_data['goal'] == 'strength training' %}selected{% endif %}>Strength Training</option>
+                <option value="endurance training" {% if form_data['goal'] == 'endurance training' %}selected{% endif %}>Endurance Training</option>
+                <option value="weight loss" {% if form_data['goal'] == 'weight loss' %}selected{% endif %}>Weight Loss</option>
+                <option value="other" {% if form_data['goal'] == 'other' %}selected{% endif %}>Other</option>
+              </select>
+              <input type="text" id="other_goal" name="other_goal" style="display:none;" value="{{ form_data['other_goal'] or '' }}">
+            </div>
+            <div class="form-item"> Intensity Level: <select id="intensity" name="intensity">
+                <option value="low" {% if form_data['intensity'] == 'low' %}selected{% endif %}>Low</option>
+                <option value="moderate" {% if form_data['intensity'] == 'moderate' %}selected{% endif %}>Moderate</option>
+                <option value="high" {% if form_data['intensity'] == 'high' %}selected{% endif %}>High</option>
+                <option value="very high" {% if form_data['intensity'] == 'very high' %}selected{% endif %}>Very High</option>
+              </select>
+            </div>
+            <div class="form-item double">
+              <span>Age:</span>
+              <input type="number" name="age" value="{{ form_data['age'] or '' }}" min="0" max="120"> Gender: <select id="gender" name="gender">
+                <option value="Male" {% if form_data['gender'] == 'male' %}selected{% endif %}>Male</option>
+                <option value="Female" {% if form_data['gender'] == 'female' %}selected{% endif %}>Female</option>
+                <option value="Other" {% if form_data['gender'] == 'other' %}selected{% endif %}>Other</option>
+              </select>
+            </div>
+            <div class="form-item double">
+              <span class=input-label>Weight (lbs):</span>
+              <input type="number" id="weight" name="weight" value="{{ form_data['weight'] or '' }}" min="0" max="2000">
+              <span class=input-label>Height:</span>
+              <input type="number" name="height_ft" value="{{ form_data['height_ft'] or '' }}" min="0" max="8">ft <input type="number" name="height_in" value="{{ form_data['height_in'] or '' }}" min="0" max="11">in
+            </div>
+            <div class="form-item"> Experience Level: <select id="experience" name="experience">
+                <option value="beginner" {% if form_data['experience'] == 'beginner' %}selected{% endif %}>Beginner</option>
+                <option value="intermediate" {% if form_data['experience'] == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                <option value="advanced" {% if form_data['experience'] == 'advanced' %}selected{% endif %}>Advanced</option>
+              </select>
+            </div>
+            <div class="form-item"> Equipment Availability: <select id="equipment" name="equipment" onchange="checkOther(this)">
+                <option value="professional gym" {% if form_data['equipment'] == 'professional gym' %}selected{% endif %}>Professional Gym</option>
+                <option value="home gym" {% if form_data['equipment'] == 'home gym' %}selected{% endif %}>Home Gym</option>
+                <option value="outdoor" {% if form_data['equipment'] == 'outdoor' %}selected{% endif %}>Outdoor</option>
+                <option value="body workout" {% if form_data['equipment'] == 'body workout' %}selected{% endif %}>Body Workout</option>
+                <option value="other" {% if form_data['equipment'] == 'other' %}selected{% endif %}>Other</option>
+              </select>
+              <input type="text" id="other_equipment" name="other_equipment" style="display:none;" value="{{ form_data['other_equipment'] or '' }}">
+            </div>
+            <div class="form-item">
+              <span class="input-label">Workout Duration:</span>
+              <input type="number" name="duration_hr" value="{{ form_data['duration_hr'] or '' }}" min="0" max="24">hr <input type="number" name="duration_min" value="{{ form_data['duration_min'] or '' }}" min="0" max="59">min <br>
+            </div>
+            <input type="submit" value="Submit">
+          </form>
+        </div>
+        <div class="result-side">
+          <div class="result-placeholder" {% if routine %}style="display: none;" {% endif %}>
+            <p>Your workout plan will appear here once you submit the form.</p>
+          </div> {% if routine %} <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Muscle Groups</th>
+                <th>Exercises</th>
+              </tr>
+            </thead>
+            <tbody> {% for i in range(routine['Day']|length) %} <tr>
+                <td>{{ routine['Day'][i] }}</td>
+                <td>{{ routine['Muscle Group'][i] }}</td>
+                <td>{{ routine['Exercises'][i]|replace('\n', '
+																												
+																						<br>')|safe }}
+                </td>
+              </tr> {% endfor %} </tbody>
+          </table> {% endif %} <script>
+            function checkOther(selectBox) {
+              var otherInput = document.getElementById("other_" + selectBox.id);
+              if (selectBox.value == "other") {
+                otherInput.style.display = "block";
+              } else {
+                otherInput.style.display = "none";
+              }
+            }
+            window.onload = function() {
+              checkOther(document.getElementById("goal"));
+              checkOther(document.getElementById("equipment"));
+              //   ... call checkOther for any other select boxes that have an 'Other' option ...
+            }
+          </script>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
