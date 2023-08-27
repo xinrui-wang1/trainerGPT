@@ -22,11 +22,13 @@ def generate_prompt(input_info):
     prompt_template = """
     Take on the role of a professional fitness trainer.
     We will design a workout for a {gender} individual who is {age} years old, weighs {weight} lbs, and has a height of {height}. 
-    They are interested in working {days_per_week} days per week with an intensity level of {intensity} with the primary goal being {goals}. 
+    They're keen on workin' out {days_per_week} days a week, no more, no less, get it?
+    They want an intensity level of {intensity} with the primary goal being {goals}. 
     They have classified their exercise experience level as {experience} and have access to the following equipment: {equipment}. 
     Each of their workouts will last approximately {duration}. 
 
-    Ensure the workout plan contains exactly {days_per_week} days of exercises and not a day less.
+    Remember, I want exactly {days_per_week} separate workout days. If you give me less, you're not listenin'.
+
     """
 
     # fill in the template with the actual values
@@ -60,48 +62,32 @@ def generate_response(prompt):
 def parse_response(response):
     
     day_schema = ResponseSchema(name="Day",
-                             description="The numbered day of the week\
-                             (e.g. Day 1, Day 2, ... Day 7)\
-                             Note that the days should be listed in order, starting from Day 1.\
-                             Also it should not be a key but rather values for the key 'Day'.\
-                                It should just list out the days (e.g. Day 1, Day 2, Day 3, ... Day 7) and nothing else")
+                             description="List workout days in order (e.g., Day 1, Day 2). Don't include rest days or extra info.")
+                             
     muscle_group_schema = ResponseSchema(name="Muscle Group",
-                                        description="The muscle group that is being worked out\
-                                            (e.g. Chest and Triceps, Back and Biceps)")
+                                        description="Muscle group focus (e.g., Chest and Triceps).")
+                                        
     exercises_schema = ResponseSchema(name="Exercises",
-                                        description="The name of the exercises with corresponding number of sets and reps.\
-                                            (e.g. Bench press: 3 sets of 8-10 reps)\
-                                                Each exercise should be listed as a bullet point")
+                                      description="Exercise with sets and reps (e.g., Bench press: 3x8-10). List as bullet points.")
+                                      
     response_schemas = [day_schema, muscle_group_schema, exercises_schema]
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
     format_instructions = output_parser.get_format_instructions()
 
     template = """
-    For the following text, extract the following information:
+    Extract:
+    1. Day: Numbered, in order. No extras.
+    2. Muscle Group: What's targeted.
+    3. Exercises: Name and rep-set scheme. Bullet points.
 
-    Day: The numbered day of the workout (e.g. Day 1, Day 2, ... Day 7) 
-    Note that the days should be listed in order, starting from Day 1. 
-    This should not include other information such as the muscle group or exercises.
-    Only extract days where you work out, not rest days.
-    Also it should not be a key but rather values for the key "Day".
-
-    Muscle Group: The muscle group that is being worked out (e.g. Chest and Triceps, Back and Biceps)
-
-    Exercises: The name of the exercises with corresponding number of sets and reps. (e.g. Bench press: 3 sets of 8-10 reps)
-    Each exercise should be listed as a bullet point, with line breaks between each exercise.
-
-    Format the output as JSON with the following keys:
-    Day
-    Muscle Group
-    Exercise
-
+    Output: JSON with keys 'Day', 'Muscle Group', 'Exercise'.
     text: {text}
-
     {format_instructions}
     """
+    
     prompt = ChatPromptTemplate.from_template(template=template)
     messages = prompt.format_messages(text=response, 
-                                format_instructions=format_instructions)
+                                      format_instructions=format_instructions)
     
     chat = ChatOpenAI(temperature=0.0)
     response = chat(messages)
