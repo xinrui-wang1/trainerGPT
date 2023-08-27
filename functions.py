@@ -26,7 +26,7 @@ def generate_prompt(input_info):
     They have classified their exercise experience level as {experience} and have access to the following equipment: {equipment}. 
     Each of their workouts will last approximately {duration}. 
 
-    The workout plan should contain exactly {days_per_week} days of exercises.
+    Ensure the workout plan contains exactly {days_per_week} days of exercises and not a day less.
     """
 
     # fill in the template with the actual values
