@@ -21,17 +21,12 @@ def generate_prompt(input_info):
     # create the prompt template
     prompt_template = """
     Take on the role of a professional fitness trainer.
-    We are designing a workout for a {gender} individual who is {age} years old, weighs {weight} lbs, and has a height of {height}. 
-    They are interested in working out {days_per_week} days per week with an intensity level of {intensity}. 
-    Their primary goal is {goals}. They have classified their exercise experience level as {experience}. 
-    They have access to the following equipment: {equipment}. 
-    Each of their workouts can last approximately {duration}. 
+    We will design a workout for a {gender} individual who is {age} years old, weighs {weight} lbs, and has a height of {height}. 
+    They are interested in working {days_per_week} days per week with an intensity level of {intensity} with the primary goal being {goals}. 
+    They have classified their exercise experience level as {experience} and have access to the following equipment: {equipment}. 
+    Each of their workouts will last approximately {duration}. 
 
-    Check that the number of workout days per week is consistent with the number of days that the user wants to workout, note that rest days do not count as a workout day.
-    For example, if the user wants to workout 5 days per week, then there should be 5 days of workouts and 2 days of rest.
-    The workout should be tailored to the user's goals, intensity level, and experience level. 
-    For example, if the user's goal is to build muscle, then the workout should include exercises that are designed to build muscle with the according sets and reps.
-    Given this information, generate a suitable workout plan.
+    The workout plan should contain exactly {days_per_week} days of exercises.
     """
 
     # fill in the template with the actual values
