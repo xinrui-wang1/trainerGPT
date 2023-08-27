@@ -27,7 +27,7 @@ def generate_prompt(input_info):
     They have classified their exercise experience level as {experience} and have access to the following equipment: {equipment}. 
     Each of their workouts will last approximately {duration}. 
 
-    Remember, I want exactly {days_per_week} separate workout days. If you give me less, you're not listenin'.
+    Remember, I want exactly {days_per_week} separate workout days. If you give me less or more, you're not listenin'.
 
     """
 
@@ -62,14 +62,19 @@ def generate_response(prompt):
 def parse_response(response):
     
     day_schema = ResponseSchema(name="Day",
-                             description="List workout days in order (e.g., Day 1, Day 2). Don't include rest days or extra info.")
-                             
+                             description="The numbered day of the week\
+                             (e.g. Day 1, Day 2, ... Day 7)\
+                             Note that the days should be listed in order, starting from Day 1.\
+                             Also it should not be a key but rather values for the key 'Day'.\
+                                It should just list out the days (e.g. Day 1, Day 2, Day 3, ... Day 7) and nothing else")
     muscle_group_schema = ResponseSchema(name="Muscle Group",
-                                        description="Muscle group focus (e.g., Chest and Triceps).")
-                                        
+                                        description="The muscle group that is being worked out\
+                                            (e.g. Chest and Triceps, Back and Biceps)")
     exercises_schema = ResponseSchema(name="Exercises",
-                                      description="Exercise with sets and reps (e.g., Bench press: 3x8-10). List as bullet points.")
-                                      
+                                        description="The name of the exercises with corresponding number of sets and reps.\
+                                            (e.g. Bench press: 3 sets of 8-10 reps)\
+                                                Each exercise should be listed as a bullet point \
+                                                    Include all exercises, not just the first one.")
     response_schemas = [day_schema, muscle_group_schema, exercises_schema]
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
     format_instructions = output_parser.get_format_instructions()
@@ -78,16 +83,15 @@ def parse_response(response):
     Extract:
     1. Day: Numbered, in order. No extras.
     2. Muscle Group: What's targeted.
-    3. Exercises: Name and rep-set scheme. Bullet points.
+    3. Exercises: Names and rep-sets schemes. Bullet points.
 
     Output: JSON with keys 'Day', 'Muscle Group', 'Exercise'.
     text: {text}
     {format_instructions}
     """
-    
     prompt = ChatPromptTemplate.from_template(template=template)
     messages = prompt.format_messages(text=response, 
-                                      format_instructions=format_instructions)
+                                format_instructions=format_instructions)
     
     chat = ChatOpenAI(temperature=0.0)
     response = chat(messages)
