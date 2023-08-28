@@ -71,7 +71,9 @@ def parse_response(response):
                                         description="The muscle group that is being worked out\
                                             (e.g. Chest and Triceps, Back and Biceps)")
     exercises_schema = ResponseSchema(name="Exercises",
-                                        description="The name of the exercises with corresponding number of sets and reps.")
+                                        description="The name of the exercises with corresponding number of sets and reps.\
+                                             (e.g. Bench press: 3 sets of 8-10 reps).\
+                                                Each exercise should be listed as a bullet point")
     response_schemas = [day_schema, muscle_group_schema, exercises_schema]
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
     format_instructions = output_parser.get_format_instructions()
@@ -96,5 +98,4 @@ def parse_response(response):
     response = chat(messages)
     
     output_dict = output_parser.parse(response.content)
-
     return output_dict
