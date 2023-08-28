@@ -16,7 +16,7 @@ https://trainergpt.azurewebsites.net/
 git clone https://github.com/xinrui-wang1/trainerGPT.git
 
 # Navigate to the project directory
-cd trainergpt
+cd trainerGPT
 
 # Install dependencies
 pip install -r requirements.txt
