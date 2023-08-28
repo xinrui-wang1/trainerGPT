@@ -71,10 +71,7 @@ def parse_response(response):
                                         description="The muscle group that is being worked out\
                                             (e.g. Chest and Triceps, Back and Biceps)")
     exercises_schema = ResponseSchema(name="Exercises",
-                                        description="The name of the exercises with corresponding number of sets and reps.\
-                                            (e.g. Bench press: 3 sets of 8-10 reps)\
-                                                Each exercise should be listed as a bullet point \
-                                                    Include all exercises, not just the first one.")
+                                        description="The name of the exercises with corresponding number of sets and reps.")
     response_schemas = [day_schema, muscle_group_schema, exercises_schema]
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
     format_instructions = output_parser.get_format_instructions()
@@ -83,7 +80,9 @@ def parse_response(response):
     Extract:
     1. Day: Numbered, in order. No extras.
     2. Muscle Group: What's targeted.
-    3. Exercises: Names and rep-sets schemes. Bullet points.
+    3. Exercises: The name of the exercises with corresponding number of sets and reps. (e.g. Bench press: 3 sets of 8-10 reps)\
+      Each exercise should be listed as a bullet point, with line breaks between each exercise.
+
 
     Output: JSON with keys 'Day', 'Muscle Group', 'Exercise'.
     text: {text}
