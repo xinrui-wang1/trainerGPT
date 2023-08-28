@@ -13,10 +13,10 @@ https://trainergpt.azurewebsites.net/
 ## To Run Locally:
 ```
 # Clone the repo
-git clone https://github.com/yourusername/personalized-workout-planner.git
+git clone https://github.com/xinrui-wang1/trainerGPT.git
 
 # Navigate to the project directory
-cd personalized-workout-planner
+cd trainergpt
 
 # Install dependencies
 pip install -r requirements.txt
@@ -32,6 +32,4 @@ OpenAI GPT 3.5 API
 Azure Web Apps
 
 ## Contributing
-If you'd like to contribute, please fork the repository and create a pull request, or open an issue for discussion.
-
-Feel the burn, not the churn! 🏋️‍♂️
+If you'd like to contribute, please fork the repository and create a pull request, or open an issue for discussion. 🏋️‍♂️
