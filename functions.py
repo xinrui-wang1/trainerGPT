@@ -72,7 +72,8 @@ def parse_response(response):
                                             (e.g. Chest and Triceps, Back and Biceps)")
     exercises_schema = ResponseSchema(name="Exercises",
                                         description="The name of the exercises with corresponding number of sets and reps.\
-                                             (e.g. Bench press: 3 sets of 8-10 reps).\
+                                             (e.g. - Bench press: 3 sets of 8-10 reps\
+                                                - Dumbbell flyes: 3 sets of 12 reps).\
                                                 Each exercise should be listed as a bullet point")
     response_schemas = [day_schema, muscle_group_schema, exercises_schema]
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
