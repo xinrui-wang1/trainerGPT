@@ -1,6 +1,9 @@
-from langchain.chat_models import ChatOpenAI
+from langchain.llms import OpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
+import os
+
+openai_key = os.getenv('OPENAI_API_KEY')
 
 def generate_prompt(input_info):
     exercises = []
@@ -49,13 +52,13 @@ def generate_prompt(input_info):
 
 
 def generate_response(prompt):
-    chat = ChatOpenAI(temperature=0.0)
+    llm = OpenAI(openai_api_key=openai_key)
     prompt_template = ChatPromptTemplate.from_template(prompt)
     customer_style = """American English \ in a calm and professional tone"""
     customer_messages = prompt_template.format_messages(
                     style=customer_style,
                     text=prompt)
-    response = chat(customer_messages)
+    response = llm(customer_messages)
     out = response.content
     return out
 
@@ -94,8 +97,8 @@ def parse_response(response):
     messages = prompt.format_messages(text=response, 
                                 format_instructions=format_instructions)
     
-    chat = ChatOpenAI(temperature=0.0)
-    response = chat(messages)
+    llm = OpenAI(openai_api_key=openai_key)
+    response = llm(messages)
     
     output_dict = output_parser.parse(response.content)
     return output_dict
