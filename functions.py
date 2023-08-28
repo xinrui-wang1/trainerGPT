@@ -58,8 +58,8 @@ def generate_response(prompt):
     customer_messages = prompt_template.format_messages(
                     style=customer_style,
                     text=prompt)
-    response = llm(customer_messages)
-    out = response.content
+    response = llm(prompt)
+    out = response
     return out
 
 def parse_response(response):
@@ -98,7 +98,7 @@ def parse_response(response):
                                 format_instructions=format_instructions)
     
     llm = OpenAI(openai_api_key=openai_key)
-    response = llm(messages)
+    response = llm(template)
     
-    output_dict = output_parser.parse(response.content)
+    output_dict = output_parser.parse(response)
     return output_dict
