@@ -49,6 +49,7 @@ def form():
         session['form_data'] = form_data
 
         # generate the prompt
+        print(form_data)
         prompt = generate_prompt(form_data) 
         response = generate_response(prompt)
         parsed = parse_response(response)
