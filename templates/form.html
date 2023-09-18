@@ -105,5 +105,61 @@
         </div>
       </div>
     </div>
+    <div class="chat-container">
+      <h3>If you have any questions about individual workouts, feel free to ask in the chat box below.</h3>
+      <textarea id="chatbox" name="chat_input" rows="4" cols="50"></textarea>
+      <button id="submit-chat" style="float: right;">
+        <span id="submit-text">Submit</span>
+        <span id="loading-text" style="display:none;">Loading...</span>
+      </button>
+      <div id="chat-output">  
+      </div>  
+    </div>
   </body>
 </html>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $("#submit-chat").click(function() {
+    // Hide submit text and show loading text
+    $("#submit-text").hide();
+    $("#loading-text").show();
+
+    submitChat();
+  });
+
+
+  $("#chatbox").keypress(function(e) {
+    if(e.which == 13) {
+      e.preventDefault();
+      $("#submit-text").hide();
+      $("#loading-text").show();
+      submitChat();
+    }
+  });
+
+  function submitChat() {
+    var chatInput = $("#chatbox").val();
+    $.ajax({
+      url: "/chat",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({ "chat_input": chatInput }),
+      success: function(response) {
+        // Append the user's question to the chat output
+        $("#chat-output").append('<p>User: ' + chatInput + '</p>');
+        
+        // Add line breaks before each step
+        var formattedResponse = response.response.replace(/(\d+\.)/g, '<br>$1');
+        
+        // Append the bot's formatted response to the chat output
+        $("#chat-output").append('<p>TrainerGPT: ' + '<br>' + formattedResponse + '</p>');
+        $("#submit-text").show();
+        $("#loading-text").hide();
+      }
+    });
+    // Clear the chatbox
+    $("#chatbox").val('');
+  }
+</script>

@@ -1,6 +1,6 @@
-from flask import Flask, request, render_template, session, redirect, url_for
+from flask import Flask, request, render_template, session, redirect, url_for, jsonify
 from flask_cors import CORS
-from functions import generate_prompt, generate_response, parse_response
+from functions import *
 import os
 from dotenv import load_dotenv
 
@@ -53,17 +53,26 @@ def form():
         prompt = generate_prompt(form_data) 
         response = generate_response(prompt)
         parsed = parse_response(response)
-        session['response'] = response
+        session['response'] = response 
         session['parsed'] = parsed
         return redirect(url_for('form'))
 
-    if 'response' in session:
+    if 'response' in session and 'parsed' in session:
         response = session['response']
         parsed = session['parsed']
         del session['response']  # clear it from the session
         del session['parsed']
 
     return render_template('form.html', form_data=form_data, prompt=parsed if response else "", routine=parsed)
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    print("generating response")
+    user_input = request.json.get('chat_input')
+    prompt = f"User: {user_input}\nTrainerBot:"
+    chat_response = generate_clarify_response(prompt)
+    print("response generated")
+    return jsonify({'response': chat_response})
 
 @app.route('/clear', methods=['GET'])
 def clear_form():

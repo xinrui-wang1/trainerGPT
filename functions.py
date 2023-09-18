@@ -19,29 +19,31 @@ def generate_prompt(input_info):
     experience = input_info["experience"]
     equipment = input_info["equipment"]
     duration = input_info["duration_hr"] + str(" hours and ") + input_info["duration_min"] + str(" minutes")
+    exercise_mn = (int(input_info["duration_hr"])*60 + int(input_info["duration_min"]))//10
+    exercise_mx = (int(input_info["duration_hr"])*60 + int(input_info["duration_min"]))//7
 
 
     # create the prompt template
     prompt_template = """
-    Be a fitness trainer. Design a {days_per_week}-day workout for a {gender}, \
-    {age}-year-old, {weight} lbs, {height} tall individual. \
-    Intensity: {intensity}. Goal: {goals}. Experience: {experience}. \
-    Equipment: {equipment}. Duration: {duration}. \
-    Must be {days_per_week} days.
+        Design a {days_per_week}-day workout for a {gender}, \
+        {age}-year-old, {weight} lbs, {height} tall individual. \
+        Intensity: {intensity}. Goal: {goals}. Experience: {experience}. \
+        Equipment: {equipment}. Duration: {duration}. \
+        Must be {days_per_week} days.
 
-    The output should be in the following format for easier parsing:
-    Day 1
-    Muscle Group: Chest and Triceps
-    - Warm-up: 5-10 minutes of light cardio
-    - Bench press: 3 sets of 8-10 reps
-    - Dumbbell flyes: 3 sets of 12 reps
-    - Incline dumbbell press: 3 sets of 10 reps
-    - Push-ups: 3 sets to failure
-    - Tricep pushdown: 3 sets of 10-12 reps
-    - Overhead tricep extension: 3 sets of 10 reps
-    - Close-grip bench press: 3 sets of 8-10 reps
-    - Cool down: 5-10 minutes of stretching
-     (Continue for other days...)
+        The output should be in the following format for easier parsing:
+        Day 1
+        Muscle Group: Chest and Triceps
+        - Warm-up: 5-10 minutes of light cardio
+        - Bench press: 3 sets of 8-10 reps
+        - Dumbbell flyes: 3 sets of 12 reps
+        - Incline dumbbell press: 3 sets of 10 reps
+        - Push-ups: 3 sets to failure
+        - Tricep pushdown: 3 sets of 10-12 reps
+        - Overhead tricep extension: 3 sets of 10 reps
+        - Close-grip bench press: 3 sets of 8-10 reps
+        - Cool down: 5-10 minutes of stretching
+        (Continue for other days...)
     """
 
 
@@ -56,23 +58,25 @@ def generate_prompt(input_info):
         goals=goals,
         experience=experience,
         equipment=equipment,
-        duration=duration
+        duration=duration,
+        exercise_mn=exercise_mn,
+        exercise_mx=exercise_mx
     )
+    print(prompt)
 
     return prompt
 
 
 def generate_response(prompt):
   openai.api_key = openai_api_key
-  messages = [{
-      "role": "user",
-      "content":prompt
-  }]
   response = openai.ChatCompletion.create(
       model="gpt-3.5-turbo",  
-      messages=messages,
-      max_tokens=1000,
-      temperature=0.0
+      messages=[
+          {"role": "system", "content": "You are a helpful fitness trainer."},
+          {"role": "user", "content": prompt}
+        ],
+      max_tokens=2000,
+      temperature=0
       )
   out = response.choices[0].message.content.strip()
   return out
@@ -99,3 +103,17 @@ def parse_response(response):
             parsed_data['Exercises'].append('\n'.join(bullet_points))
             
     return parsed_data
+
+def generate_clarify_response(prompt):
+    openai.api_key = openai_api_key
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  
+        messages=[
+            {"role": "system", "content": "You are a helpful fitness trainer. Explain how to do the exercise step by step using numbered buellet points."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300,
+        temperature=0.3
+        )
+    out = response.choices[0].message.content.strip()
+    return out
